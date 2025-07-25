@@ -5,57 +5,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Petrol Entry System</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #4CAF50; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
-        #total { font-weight: bold; background: #f5f5f5; }
-        #message { margin-top: 15px; padding: 10px; display: none; }
-        .success { background: #dff0d8; color: #3c763d; }
-        .error { background: #f2dede; color: #a94442; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #total {
+            font-weight: bold;
+            background: #f5f5f5;
+            font-size: 18px;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            display: none;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <h1>Petrol Entry System</h1>
-    <form id="entryForm">
-        <div class="form-group">
-            <label for="date">Date:</label>
-            <input type="date" id="date" required>
-        </div>
-        <div class="form-group">
-            <label for="employeeName">Employee Name:</label>
-            <input type="text" id="employeeName" required>
-        </div>
-        <div class="form-group">
-            <label for="cashReceived">Cash Received (₹):</label>
-            <input type="number" id="cashReceived" step="0.01" min="0" oninput="calculateTotal()">
-        </div>
-        <div class="form-group">
-            <label for="paytmReceived">Paytm Received (₹):</label>
-            <input type="number" id="paytmReceived" step="0.01" min="0" oninput="calculateTotal()">
-        </div>
-        <div class="form-group">
-            <label for="iciciTransfer">ICICI Transfer (₹):</label>
-            <input type="number" id="iciciTransfer" step="0.01" min="0" oninput="calculateTotal()">
-        </div>
-        <div class="form-group">
-            <label for="xtraPowerPayment">XtraPower Payment (₹):</label>
-            <input type="number" id="xtraPowerPayment" step="0.01" min="0" oninput="calculateTotal()">
-        </div>
-        <div class="form-group">
-            <label for="bankReceived">Bank Received (₹):</label>
-            <input type="number" id="bankReceived" step="0.01" min="0" oninput="calculateTotal()">
-        </div>
-        <div class="form-group">
-            <label>Total (₹):</label>
-            <input type="number" id="total" readonly>
-        </div>
-        <button type="submit">Submit Entry</button>
-    </form>
-    <div id="message"></div>
+    <div class="form-container">
+        <h1>Petrol Entry System</h1>
+        
+        <form id="entryForm">
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="employeeName">Employee Name:</label>
+                <input type="text" id="employeeName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="cashReceived">Cash Received (₹):</label>
+                <input type="number" id="cashReceived" step="0.01" min="0" oninput="calculateTotal()">
+            </div>
+            
+            <div class="form-group">
+                <label for="paytmReceived">Paytm Received (₹):</label>
+                <input type="number" id="paytmReceived" step="0.01" min="0" oninput="calculateTotal()">
+            </div>
+            
+            <div class="form-group">
+                <label for="iciciTransfer">ICICI Transfer (₹):</label>
+                <input type="number" id="iciciTransfer" step="0.01" min="0" oninput="calculateTotal()">
+            </div>
+            
+            <div class="form-group">
+                <label for="xtraPowerPayment">XtraPower Payment (₹):</label>
+                <input type="number" id="xtraPowerPayment" step="0.01" min="0" oninput="calculateTotal()">
+            </div>
+            
+            <div class="form-group">
+                <label for="bankReceived">Bank Received (₹):</label>
+                <input type="number" id="bankReceived" step="0.01" min="0" oninput="calculateTotal()">
+            </div>
+            
+            <div class="form-group">
+                <label>Total Amount (₹):</label>
+                <input type="number" id="total" readonly>
+            </div>
+            
+            <button type="submit" id="submitBtn">
+                <span id="btnText">Submit Entry</span>
+            </button>
+        </form>
+        
+        <div id="message"></div>
+    </div>
 
     <script>
+        // DOM Elements
+        const form = document.getElementById('entryForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const messageDiv = document.getElementById('message');
+        
+        // Google Apps Script URL (replace with your deployed URL)
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec";
+        
         // Calculate total in real-time
         function calculateTotal() {
             const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
@@ -63,13 +173,39 @@
             const icici = parseFloat(document.getElementById('iciciTransfer').value) || 0;
             const xtra = parseFloat(document.getElementById('xtraPowerPayment').value) || 0;
             const bank = parseFloat(document.getElementById('bankReceived').value) || 0;
+            
             const total = cash + paytm + icici + xtra + bank;
             document.getElementById('total').value = total.toFixed(2);
         }
 
+        // Show loading state
+        function showLoading() {
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="loading"></span> Processing...';
+        }
+
+        // Hide loading state
+        function hideLoading() {
+            submitBtn.disabled = false;
+            btnText.textContent = 'Submit Entry';
+        }
+
+        // Show message
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = type;
+            messageDiv.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
         // Submit form to Google Sheets
-        document.getElementById('entryForm').addEventListener('submit', async (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            showLoading();
             
             const formData = {
                 date: document.getElementById('date').value,
@@ -81,38 +217,46 @@
                 bankReceived: document.getElementById('bankReceived').value || 0
             };
 
-            const scriptUrl = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec"; // Replace with your URL
-
             try {
+                // First make an OPTIONS request to handle CORS preflight
+                const optionsResponse = await fetch(scriptUrl, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                // Then make the POST request
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(formData)
                 });
+                
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage("Entry saved successfully!", "success");
-                    document.getElementById('entryForm').reset();
+                    showMessage("✅ Entry saved successfully!", "success");
+                    form.reset();
                     calculateTotal(); // Reset total to 0
                 } else {
-                    showMessage("Error: " + (result.error || "Failed to save"), "error");
+                    showMessage(`❌ Error: ${result.error || "Failed to save data"}`, "error");
                 }
             } catch (error) {
-                showMessage("Error: " + error.message, "error");
+                showMessage(`❌ Network Error: ${error.message}`, "error");
+                console.error('Submission error:', error);
+            } finally {
+                hideLoading();
             }
         });
 
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = type;
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
-        }
-
         // Set default date to today
         document.getElementById('date').valueAsDate = new Date();
+        
+        // Initialize total calculation
+        calculateTotal();
     </script>
 </body>
 </html>
