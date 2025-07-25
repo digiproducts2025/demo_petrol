@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Test Form</title>
+    <title>Simple Test Form - CORS Fixed</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,6 +46,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-bottom: 10px;
         }
         button:hover {
             background: #0056b3;
@@ -60,26 +61,35 @@
         .error { background: #f8d7da; color: #721c24; }
         .info { background: #d1ecf1; color: #0c5460; }
         .hidden { display: none; }
+        .method-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧪 Test Form</h1>
+        <h1>🧪 CORS-Fixed Test Form</h1>
         
-        <div id="status" class="status hidden"></div>
-        
-        <!-- Test GET request first -->
-        <div id="testGet">
-            <h3>Step 1: Test GET Request</h3>
+        <!-- Method 1: Regular fetch with CORS headers -->
+        <div class="method-section">
+            <h3>Method 1: Fetch API (with CORS fix)</h3>
             <button onclick="testGetRequest()">Test GET Request</button>
             <div id="getResult" class="status hidden"></div>
         </div>
         
-        <hr style="margin: 30px 0;">
+        <!-- Method 2: JSONP fallback -->
+        <div class="method-section">
+            <h3>Method 2: JSONP Fallback</h3>
+            <button onclick="testJsonpRequest()">Test JSONP Request</button>
+            <div id="jsonpResult" class="status hidden"></div>
+        </div>
         
-        <!-- Test POST via iframe -->
-        <div id="testPost">
-            <h3>Step 2: Test POST Request</h3>
+        <!-- Method 3: Form submission (always works) -->
+        <div class="method-section">
+            <h3>Method 3: Form Submission (Most Reliable)</h3>
             <form id="testForm" method="POST" target="testFrame">
                 <div class="form-group">
                     <label for="date">Date:</label>
@@ -116,11 +126,18 @@
                     <input type="number" id="bankReceived" name="bankReceived" value="25" step="0.01">
                 </div>
                 
-                <button type="submit">Submit Test Data</button>
+                <button type="submit">Submit Test Data via Form</button>
             </form>
             
             <iframe name="testFrame" style="display: none;"></iframe>
             <div id="postResult" class="status hidden"></div>
+        </div>
+        
+        <!-- Method 4: Fetch POST -->
+        <div class="method-section">
+            <h3>Method 4: Fetch POST</h3>
+            <button onclick="testFetchPost()">Test Fetch POST</button>
+            <div id="fetchPostResult" class="status hidden"></div>
         </div>
     </div>
 
@@ -141,14 +158,20 @@
             element.classList.remove('hidden');
         }
         
-        // Test GET request
+        // Method 1: Test GET request with CORS headers
         async function testGetRequest() {
             try {
                 showStatus('getResult', 'Testing GET request...', 'info');
                 
-                const response = await fetch(SCRIPT_URL);
-                const data = await response.text();
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    mode: 'cors'
+                });
                 
+                const data = await response.text();
                 console.log('GET Response:', data);
                 
                 if (response.ok) {
@@ -163,12 +186,75 @@
             }
         }
         
-        // Handle form submission
+        // Method 2: JSONP fallback
+        function testJsonpRequest() {
+            showStatus('jsonpResult', 'Testing JSONP request...', 'info');
+            
+            // Create a unique callback name
+            const callbackName = 'jsonp_callback_' + Date.now();
+            
+            // Create the callback function
+            window[callbackName] = function(data) {
+                console.log('JSONP Response:', data);
+                showStatus('jsonpResult', `✅ JSONP request successful! Response: ${JSON.stringify(data)}`, 'success');
+                
+                // Clean up
+                document.head.removeChild(script);
+                delete window[callbackName];
+            };
+            
+            // Create script element
+            const script = document.createElement('script');
+            script.src = `${SCRIPT_URL}?callback=${callbackName}`;
+            script.onerror = function() {
+                showStatus('jsonpResult', '❌ JSONP request failed', 'error');
+                document.head.removeChild(script);
+                delete window[callbackName];
+            };
+            
+            // Add to head to trigger request
+            document.head.appendChild(script);
+        }
+        
+        // Method 4: Test Fetch POST
+        async function testFetchPost() {
+            try {
+                showStatus('fetchPostResult', 'Testing Fetch POST...', 'info');
+                
+                const formData = new FormData();
+                formData.append('date', document.getElementById('date').value);
+                formData.append('employeeName', document.getElementById('employeeName').value);
+                formData.append('cashReceived', document.getElementById('cashReceived').value);
+                formData.append('paytmReceived', document.getElementById('paytmReceived').value);
+                formData.append('iciciTransfer', document.getElementById('iciciTransfer').value);
+                formData.append('xtraPowerPayment', document.getElementById('xtraPowerPayment').value);
+                formData.append('bankReceived', document.getElementById('bankReceived').value);
+                
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'cors'
+                });
+                
+                const data = await response.text();
+                console.log('Fetch POST Response:', data);
+                
+                if (response.ok) {
+                    showStatus('fetchPostResult', `✅ Fetch POST successful! Response: ${data}`, 'success');
+                } else {
+                    showStatus('fetchPostResult', `❌ Fetch POST failed. Status: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Fetch POST Error:', error);
+                showStatus('fetchPostResult', `❌ Fetch POST error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Method 3: Handle form submission
         document.getElementById('testForm').addEventListener('submit', function(e) {
             showStatus('postResult', '⏳ Submitting form via iframe...', 'info');
-            
             console.log('Form submitted to:', SCRIPT_URL);
-            console.log('Form data:', new FormData(this));
         });
         
         // Handle iframe response
