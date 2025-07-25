@@ -59,7 +59,7 @@
             transition: background-color 0.3s;
             margin-top: 10px;
         }
-        button:hover {
+        button:hover:not(:disabled) {
             background-color: #45a049;
         }
         button:disabled {
@@ -88,6 +88,11 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
         .loading {
             display: inline-block;
             width: 20px;
@@ -101,46 +106,52 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .hidden-iframe {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h1>Petrol Entry System</h1>
         
+        <div id="message"></div>
+        
+        <!-- Main visible form for user interaction -->
         <form id="entryForm">
             <div class="form-group">
-                <label for="date">Datee:</label>
+                <label for="date">Date:</label>
                 <input type="date" id="date" required>
             </div>
             
             <div class="form-group">
                 <label for="employeeName">Employee Name:</label>
-                <input type="text" id="employeeName" required>
+                <input type="text" id="employeeName" required placeholder="Enter employee name">
             </div>
             
             <div class="form-group">
                 <label for="cashReceived">Cash Received (₹):</label>
-                <input type="number" id="cashReceived" step="0.01" min="0" oninput="calculateTotal()">
+                <input type="number" id="cashReceived" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
             </div>
             
             <div class="form-group">
                 <label for="paytmReceived">Paytm Received (₹):</label>
-                <input type="number" id="paytmReceived" step="0.01" min="0" oninput="calculateTotal()">
+                <input type="number" id="paytmReceived" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
             </div>
             
             <div class="form-group">
                 <label for="iciciTransfer">ICICI Transfer (₹):</label>
-                <input type="number" id="iciciTransfer" step="0.01" min="0" oninput="calculateTotal()">
+                <input type="number" id="iciciTransfer" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
             </div>
             
             <div class="form-group">
                 <label for="xtraPowerPayment">XtraPower Payment (₹):</label>
-                <input type="number" id="xtraPowerPayment" step="0.01" min="0" oninput="calculateTotal()">
+                <input type="number" id="xtraPowerPayment" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
             </div>
             
             <div class="form-group">
                 <label for="bankReceived">Bank Received (₹):</label>
-                <input type="number" id="bankReceived" step="0.01" min="0" oninput="calculateTotal()">
+                <input type="number" id="bankReceived" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
             </div>
             
             <div class="form-group">
@@ -153,18 +164,35 @@
             </button>
         </form>
         
-        <div id="message"></div>
+        <!-- Hidden iframe for form submission -->
+        <iframe name="hiddenFrame" class="hidden-iframe"></iframe>
+        
+        <!-- Hidden form that actually submits to Google Apps Script -->
+        <form id="hiddenForm" method="POST" target="hiddenFrame" style="display: none;">
+            <input type="hidden" name="date" id="hiddenDate">
+            <input type="hidden" name="employeeName" id="hiddenEmployeeName">
+            <input type="hidden" name="cashReceived" id="hiddenCashReceived">
+            <input type="hidden" name="paytmReceived" id="hiddenPaytmReceived">
+            <input type="hidden" name="iciciTransfer" id="hiddenIciciTransfer">
+            <input type="hidden" name="xtraPowerPayment" id="hiddenXtraPowerPayment">
+            <input type="hidden" name="bankReceived" id="hiddenBankReceived">
+        </form>
     </div>
 
     <script>
+        // Google Apps Script URL - UPDATE THIS WITH YOUR DEPLOYMENT URL
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec";
+        
         // DOM Elements
-        const form = document.getElementById('entryForm');
+        const visibleForm = document.getElementById('entryForm');
+        const hiddenForm = document.getElementById('hiddenForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const messageDiv = document.getElementById('message');
+        const iframe = document.querySelector('iframe[name="hiddenFrame"]');
         
-        // Google Apps Script URL (replace with your deployed URL)
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec";
+        // Set the hidden form action to the script URL
+        hiddenForm.action = scriptUrl;
         
         // Calculate total in real-time
         function calculateTotal() {
@@ -196,108 +224,100 @@
             messageDiv.className = type;
             messageDiv.style.display = 'block';
             
-            // Hide message after 5 seconds
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 5000);
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
         }
 
-        // Submit form to Google Sheets using iframe method to bypass CORS
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showLoading();
-            
-            try {
-                // Create FormData
-                const formData = new FormData();
-                formData.append('date', document.getElementById('date').value);
-                formData.append('employeeName', document.getElementById('employeeName').value);
-                formData.append('cashReceived', document.getElementById('cashReceived').value || 0);
-                formData.append('paytmReceived', document.getElementById('paytmReceived').value || 0);
-                formData.append('iciciTransfer', document.getElementById('iciciTransfer').value || 0);
-                formData.append('xtraPowerPayment', document.getElementById('xtraPowerPayment').value || 0);
-                formData.append('bankReceived', document.getElementById('bankReceived').value || 0);
+        // Handle iframe load event
+        iframe.addEventListener('load', function() {
+            // Only handle if we just submitted a form
+            if (submitBtn.disabled) {
+                console.log('Form submitted successfully via iframe');
+                showMessage("✅ Entry submitted successfully!", "success");
                 
-                console.log('Submitting form data...');
-
-                // Method 1: Try with no-cors mode first
-                try {
-                    await fetch(scriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: formData
-                    });
-                    
-                    console.log('Submitted with no-cors mode');
-                    showMessage("✅ Entry submitted successfully!", "success");
-                    form.reset();
-                    calculateTotal();
-                    document.getElementById('date').valueAsDate = new Date();
-                    
-                } catch (fetchError) {
-                    console.log('no-cors method failed, trying iframe method...');
-                    
-                    // Method 2: Use hidden iframe as fallback
-                    submitViaIframe(formData);
-                }
+                // Reset the visible form
+                visibleForm.reset();
+                calculateTotal();
                 
-            } catch (error) {
-                console.error('Submission error:', error);
-                showMessage(`❌ Error: ${error.message}`, "error");
-            } finally {
+                // Set date to today again after reset
+                document.getElementById('date').valueAsDate = new Date();
+                
                 hideLoading();
             }
         });
 
-        // Function to submit via iframe (fallback method)
-        function submitViaIframe(formData) {
-            // Create a hidden form
-            const hiddenForm = document.createElement('form');
-            hiddenForm.method = 'POST';
-            hiddenForm.action = scriptUrl;
-            hiddenForm.target = 'hidden-iframe';
-            hiddenForm.style.display = 'none';
+        // Handle form submission
+        visibleForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            // Add form data as hidden inputs
-            for (let [key, value] of formData.entries()) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = value;
-                hiddenForm.appendChild(input);
+            // Validate required fields
+            const date = document.getElementById('date').value;
+            const employeeName = document.getElementById('employeeName').value.trim();
+            
+            if (!date) {
+                showMessage("❌ Please select a date", "error");
+                return;
             }
             
-            // Create hidden iframe
-            const iframe = document.createElement('iframe');
-            iframe.name = 'hidden-iframe';
-            iframe.style.display = 'none';
+            if (!employeeName) {
+                showMessage("❌ Please enter employee name", "error");
+                return;
+            }
             
-            // Handle iframe load event
-            iframe.onload = function() {
-                console.log('Form submitted via iframe');
-                showMessage("✅ Entry submitted successfully!", "success");
-                form.reset();
-                calculateTotal();
-                document.getElementById('date').valueAsDate = new Date();
-                
-                // Clean up
-                setTimeout(() => {
-                    document.body.removeChild(hiddenForm);
-                    document.body.removeChild(iframe);
-                }, 1000);
-            };
+            showLoading();
+            showMessage("⏳ Submitting entry...", "info");
             
-            // Add elements to page and submit
-            document.body.appendChild(iframe);
-            document.body.appendChild(hiddenForm);
+            // Copy data to hidden form
+            document.getElementById('hiddenDate').value = date;
+            document.getElementById('hiddenEmployeeName').value = employeeName;
+            document.getElementById('hiddenCashReceived').value = document.getElementById('cashReceived').value || '0';
+            document.getElementById('hiddenPaytmReceived').value = document.getElementById('paytmReceived').value || '0';
+            document.getElementById('hiddenIciciTransfer').value = document.getElementById('iciciTransfer').value || '0';
+            document.getElementById('hiddenXtraPowerPayment').value = document.getElementById('xtraPowerPayment').value || '0';
+            document.getElementById('hiddenBankReceived').value = document.getElementById('bankReceived').value || '0';
+            
+            // Submit the hidden form
+            console.log('Submitting form to:', scriptUrl);
+            console.log('Form data:', {
+                date: document.getElementById('hiddenDate').value,
+                employeeName: document.getElementById('hiddenEmployeeName').value,
+                cashReceived: document.getElementById('hiddenCashReceived').value,
+                paytmReceived: document.getElementById('hiddenPaytmReceived').value,
+                iciciTransfer: document.getElementById('hiddenIciciTransfer').value,
+                xtraPowerPayment: document.getElementById('hiddenXtraPowerPayment').value,
+                bankReceived: document.getElementById('hiddenBankReceived').value
+            });
+            
             hiddenForm.submit();
-        }
+            
+            // Backup timeout in case iframe doesn't load
+            setTimeout(() => {
+                if (submitBtn.disabled) {
+                    console.log('Iframe did not respond, assuming success');
+                    showMessage("✅ Entry submitted (response timeout)", "success");
+                    visibleForm.reset();
+                    calculateTotal();
+                    document.getElementById('date').valueAsDate = new Date();
+                    hideLoading();
+                }
+            }, 10000); // 10 second timeout
+        });
 
-        // Set default date to today
-        document.getElementById('date').valueAsDate = new Date();
-        
-        // Initialize total calculation
-        calculateTotal();
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date to today
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Initialize total calculation
+            calculateTotal();
+            
+            console.log('Petrol Entry System initialized');
+            console.log('Script URL:', scriptUrl);
+        });
     </script>
 </body>
 </html>
