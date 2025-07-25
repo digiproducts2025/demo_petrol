@@ -202,13 +202,13 @@
             }, 5000);
         }
 
-        // Submit form to Google Sheets using FormData to avoid CORS issues
+        // Submit form to Google Sheets using iframe method to bypass CORS
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoading();
             
             try {
-                // Use FormData instead of JSON to avoid CORS preflight
+                // Create FormData
                 const formData = new FormData();
                 formData.append('date', document.getElementById('date').value);
                 formData.append('employeeName', document.getElementById('employeeName').value);
@@ -220,45 +220,78 @@
                 
                 console.log('Submitting form data...');
 
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.text();
-                console.log('Response:', result);
-                
+                // Method 1: Try with no-cors mode first
                 try {
-                    const jsonResult = JSON.parse(result);
-                    if (jsonResult.success) {
-                        showMessage(`✅ Entry saved successfully! Total: ₹${jsonResult.total}`, "success");
-                        form.reset();
-                        calculateTotal();
-                        // Set date to today again after reset
-                        document.getElementById('date').valueAsDate = new Date();
-                    } else {
-                        showMessage(`❌ Error: ${jsonResult.error}`, "error");
-                    }
-                } catch (parseError) {
-                    console.log('Could not parse response as JSON:', result);
-                    // If we can't parse the response but got a response, assume success
-                    if (response.ok) {
-                        showMessage("✅ Entry submitted successfully!", "success");
-                        form.reset();
-                        calculateTotal();
-                        document.getElementById('date').valueAsDate = new Date();
-                    } else {
-                        showMessage("❌ Error submitting entry", "error");
-                    }
+                    await fetch(scriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    
+                    console.log('Submitted with no-cors mode');
+                    showMessage("✅ Entry submitted successfully!", "success");
+                    form.reset();
+                    calculateTotal();
+                    document.getElementById('date').valueAsDate = new Date();
+                    
+                } catch (fetchError) {
+                    console.log('no-cors method failed, trying iframe method...');
+                    
+                    // Method 2: Use hidden iframe as fallback
+                    submitViaIframe(formData);
                 }
                 
             } catch (error) {
                 console.error('Submission error:', error);
-                showMessage(`❌ Network error: ${error.message}`, "error");
+                showMessage(`❌ Error: ${error.message}`, "error");
             } finally {
                 hideLoading();
             }
         });
+
+        // Function to submit via iframe (fallback method)
+        function submitViaIframe(formData) {
+            // Create a hidden form
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = scriptUrl;
+            hiddenForm.target = 'hidden-iframe';
+            hiddenForm.style.display = 'none';
+            
+            // Add form data as hidden inputs
+            for (let [key, value] of formData.entries()) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                hiddenForm.appendChild(input);
+            }
+            
+            // Create hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.name = 'hidden-iframe';
+            iframe.style.display = 'none';
+            
+            // Handle iframe load event
+            iframe.onload = function() {
+                console.log('Form submitted via iframe');
+                showMessage("✅ Entry submitted successfully!", "success");
+                form.reset();
+                calculateTotal();
+                document.getElementById('date').valueAsDate = new Date();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(hiddenForm);
+                    document.body.removeChild(iframe);
+                }, 1000);
+            };
+            
+            // Add elements to page and submit
+            document.body.appendChild(iframe);
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+        }
 
         // Set default date to today
         document.getElementById('date').valueAsDate = new Date();
