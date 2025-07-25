@@ -202,32 +202,27 @@
             }, 5000);
         }
 
-        // Submit form to Google Sheets with better debugging
+        // Submit form to Google Sheets using FormData to avoid CORS issues
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoading();
             
-            // Log the data being sent
-            const dataToSend = {
-                date: document.getElementById('date').value,
-                employeeName: document.getElementById('employeeName').value,
-                cashReceived: document.getElementById('cashReceived').value || 0,
-                paytmReceived: document.getElementById('paytmReceived').value || 0,
-                iciciTransfer: document.getElementById('iciciTransfer').value || 0,
-                xtraPowerPayment: document.getElementById('xtraPowerPayment').value || 0,
-                bankReceived: document.getElementById('bankReceived').value || 0
-            };
-            
-            console.log('Sending data:', dataToSend);
-
             try {
-                // Try JSON first
+                // Use FormData instead of JSON to avoid CORS preflight
+                const formData = new FormData();
+                formData.append('date', document.getElementById('date').value);
+                formData.append('employeeName', document.getElementById('employeeName').value);
+                formData.append('cashReceived', document.getElementById('cashReceived').value || 0);
+                formData.append('paytmReceived', document.getElementById('paytmReceived').value || 0);
+                formData.append('iciciTransfer', document.getElementById('iciciTransfer').value || 0);
+                formData.append('xtraPowerPayment', document.getElementById('xtraPowerPayment').value || 0);
+                formData.append('bankReceived', document.getElementById('bankReceived').value || 0);
+                
+                console.log('Submitting form data...');
+
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSend)
+                    body: formData
                 });
                 
                 const result = await response.text();
@@ -236,43 +231,30 @@
                 try {
                     const jsonResult = JSON.parse(result);
                     if (jsonResult.success) {
-                        showMessage(`✅ Entry saved successfully! Row: ${jsonResult.rowNumber}`, "success");
+                        showMessage(`✅ Entry saved successfully! Total: ₹${jsonResult.total}`, "success");
                         form.reset();
                         calculateTotal();
+                        // Set date to today again after reset
+                        document.getElementById('date').valueAsDate = new Date();
                     } else {
                         showMessage(`❌ Error: ${jsonResult.error}`, "error");
                     }
                 } catch (parseError) {
                     console.log('Could not parse response as JSON:', result);
-                    showMessage("✅ Entry submitted (response unclear)", "success");
-                    form.reset();
-                    calculateTotal();
+                    // If we can't parse the response but got a response, assume success
+                    if (response.ok) {
+                        showMessage("✅ Entry submitted successfully!", "success");
+                        form.reset();
+                        calculateTotal();
+                        document.getElementById('date').valueAsDate = new Date();
+                    } else {
+                        showMessage("❌ Error submitting entry", "error");
+                    }
                 }
                 
             } catch (error) {
-                console.error('Fetch error:', error);
-                
-                // Fallback: try with FormData and no-cors
-                try {
-                    const formData = new FormData();
-                    Object.keys(dataToSend).forEach(key => {
-                        formData.append(key, dataToSend[key]);
-                    });
-                    
-                    await fetch(scriptUrl, {
-                        method: 'POST',
-                        body: formData,
-                        mode: 'no-cors'
-                    });
-                    
-                    showMessage("✅ Entry submitted via fallback method!", "success");
-                    form.reset();
-                    calculateTotal();
-                    
-                } catch (fallbackError) {
-                    showMessage(`❌ All submission methods failed: ${error.message}`, "error");
-                    console.error('All methods failed:', fallbackError);
-                }
+                console.error('Submission error:', error);
+                showMessage(`❌ Network error: ${error.message}`, "error");
             } finally {
                 hideLoading();
             }
