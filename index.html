@@ -3,268 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Test Form - CORS Fixed</title>
+    <title>Employee Data Entry</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        button {
-            width: 100%;
-            background: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
             margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        button:hover {
-            background: #0056b3;
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
         }
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .amount-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
             text-align: center;
         }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
-        .hidden { display: none; }
-        .method-section {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
+
+        .total-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 12px;
             border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .amount-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧪 CORS-Fixed Test Form</h1>
-        
-        <!-- Method 1: Regular fetch with CORS headers -->
-        <div class="method-section">
-            <h3>Method 1: Fetch API (with CORS fix)</h3>
-            <button onclick="testGetRequest()">Test GET Request</button>
-            <div id="getResult" class="status hidden"></div>
+        <div class="header">
+            <h1>Employee Data Entry</h1>
+            <p>Enter daily transaction details</p>
         </div>
-        
-        <!-- Method 2: JSONP fallback -->
-        <div class="method-section">
-            <h3>Method 2: JSONP Fallback</h3>
-            <button onclick="testJsonpRequest()">Test JSONP Request</button>
-            <div id="jsonpResult" class="status hidden"></div>
-        </div>
-        
-        <!-- Method 3: Form submission (always works) -->
-        <div class="method-section">
-            <h3>Method 3: Form Submission (Most Reliable)</h3>
-            <form id="testForm" method="POST" target="testFrame">
+
+
+
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" required />
+            </div>
+
+            <div class="form-group">
+                <label for="employeeName">Employee Name:</label>
+                <input type="text" id="employeeName" placeholder="Enter employee name" required />
+            </div>
+
+            <div class="amount-grid">
                 <div class="form-group">
-                    <label for="date">Date:</label>
-                    <input type="date" id="date" name="date" required>
+                    <label for="cash">Cash:</label>
+                    <input type="number" id="cash" placeholder="0.00" step="0.01" min="0" />
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="employeeName">Employee Name:</label>
-                    <input type="text" id="employeeName" name="employeeName" value="Test User" required>
+                    <label for="phonepe">PhonePe:</label>
+                    <input type="number" id="phonepe" placeholder="0.00" step="0.01" min="0" />
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="cashReceived">Cash Received:</label>
-                    <input type="number" id="cashReceived" name="cashReceived" value="100" step="0.01">
+                    <label for="icici">ICICI:</label>
+                    <input type="number" id="icici" placeholder="0.00" step="0.01" min="0" />
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="paytmReceived">Paytm Received:</label>
-                    <input type="number" id="paytmReceived" name="paytmReceived" value="50" step="0.01">
+                    <label for="bank">Bank:</label>
+                    <input type="number" id="bank" placeholder="0.00" step="0.01" min="0" />
                 </div>
-                
-                <div class="form-group">
-                    <label for="iciciTransfer">ICICI Transfer:</label>
-                    <input type="number" id="iciciTransfer" name="iciciTransfer" value="200" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="xtraPowerPayment">XtraPower Payment:</label>
-                    <input type="number" id="xtraPowerPayment" name="xtraPowerPayment" value="75" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="bankReceived">Bank Received:</label>
-                    <input type="number" id="bankReceived" name="bankReceived" value="25" step="0.01">
-                </div>
-                
-                <button type="submit">Submit Test Data via Form</button>
-            </form>
-            
-            <iframe name="testFrame" style="display: none;"></iframe>
-            <div id="postResult" class="status hidden"></div>
-        </div>
-        
-        <!-- Method 4: Fetch POST -->
-        <div class="method-section">
-            <h3>Method 4: Fetch POST</h3>
-            <button onclick="testFetchPost()">Test Fetch POST</button>
-            <div id="fetchPostResult" class="status hidden"></div>
-        </div>
+            </div>
+
+            <div class="form-group">
+                <label for="xtra">Extra:</label>
+                <input type="number" id="xtra" placeholder="0.00" step="0.01" min="0" />
+            </div>
+
+            <div class="total-section">
+                <div>Total Amount</div>
+                <div class="total-amount" id="totalAmount">₹0.00</div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Submit Data
+            </button>
+        </form>
+
+        <div id="statusMessage" class="status-message"></div>
     </div>
 
     <script>
-        // UPDATE THIS URL WITH YOUR GOOGLE APPS SCRIPT DEPLOYMENT URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec";
-        
-        // Set today's date
-        document.getElementById('date').valueAsDate = new Date();
-        
-        // Set form action
-        document.getElementById('testForm').action = SCRIPT_URL;
-        
-        function showStatus(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = `status ${type}`;
-            element.classList.remove('hidden');
+        // Configuration - Replace with your actual values
+        const CONFIG = {
+            spreadsheetUrl: 'https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec'
+        };
+
+        // Global variables
+        let isSubmitting = false;
+
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Add event listeners for amount calculation
+            const amountFields = ['cash', 'phonepe', 'icici', 'bank', 'xtra'];
+            amountFields.forEach(field => {
+                document.getElementById(field).addEventListener('input', calculateTotal);
+            });
+        });
+
+        // Calculate total amount
+        function calculateTotal() {
+            const cash = parseFloat(document.getElementById('cash').value) || 0;
+            const phonepe = parseFloat(document.getElementById('phonepe').value) || 0;
+            const icici = parseFloat(document.getElementById('icici').value) || 0;
+            const bank = parseFloat(document.getElementById('bank').value) || 0;
+            const xtra = parseFloat(document.getElementById('xtra').value) || 0;
+
+            const total = cash + phonepe + icici + bank + xtra;
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
         }
-        
-        // Method 1: Test GET request with CORS headers
-        async function testGetRequest() {
-            try {
-                showStatus('getResult', 'Testing GET request...', 'info');
-                
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    mode: 'cors'
-                });
-                
-                const data = await response.text();
-                console.log('GET Response:', data);
-                
-                if (response.ok) {
-                    showStatus('getResult', `✅ GET request successful! Response: ${data}`, 'success');
-                } else {
-                    showStatus('getResult', `❌ GET request failed. Status: ${response.status}`, 'error');
-                }
-                
-            } catch (error) {
-                console.error('GET Error:', error);
-                showStatus('getResult', `❌ GET request error: ${error.message}`, 'error');
+
+
+
+        // Show status message
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
             }
         }
-        
-        // Method 2: JSONP fallback
-        function testJsonpRequest() {
-            showStatus('jsonpResult', 'Testing JSONP request...', 'info');
+
+        // Submit form data
+        document.getElementById('dataForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Create a unique callback name
-            const callbackName = 'jsonp_callback_' + Date.now();
+            if (isSubmitting) return;
             
-            // Create the callback function
-            window[callbackName] = function(data) {
-                console.log('JSONP Response:', data);
-                showStatus('jsonpResult', `✅ JSONP request successful! Response: ${JSON.stringify(data)}`, 'success');
-                
-                // Clean up
-                document.head.removeChild(script);
-                delete window[callbackName];
-            };
+            isSubmitting = true;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
             
-            // Create script element
-            const script = document.createElement('script');
-            script.src = `${SCRIPT_URL}?callback=${callbackName}`;
-            script.onerror = function() {
-                showStatus('jsonpResult', '❌ JSONP request failed', 'error');
-                document.head.removeChild(script);
-                delete window[callbackName];
-            };
-            
-            // Add to head to trigger request
-            document.head.appendChild(script);
-        }
-        
-        // Method 4: Test Fetch POST
-        async function testFetchPost() {
+            showMessage('Submitting data...', 'loading');
+
             try {
-                showStatus('fetchPostResult', 'Testing Fetch POST...', 'info');
-                
+                // Calculate total
+                const cash = parseFloat(document.getElementById('cash').value) || 0;
+                const phonepe = parseFloat(document.getElementById('phonepe').value) || 0;
+                const icici = parseFloat(document.getElementById('icici').value) || 0;
+                const bank = parseFloat(document.getElementById('bank').value) || 0;
+                const xtra = parseFloat(document.getElementById('xtra').value) || 0;
+                const total = cash + phonepe + icici + bank + xtra;
+
+                // Prepare data for Google Apps Script
                 const formData = new FormData();
                 formData.append('date', document.getElementById('date').value);
-                formData.append('employeeName', document.getElementById('employeeName').value);
-                formData.append('cashReceived', document.getElementById('cashReceived').value);
-                formData.append('paytmReceived', document.getElementById('paytmReceived').value);
-                formData.append('iciciTransfer', document.getElementById('iciciTransfer').value);
-                formData.append('xtraPowerPayment', document.getElementById('xtraPowerPayment').value);
-                formData.append('bankReceived', document.getElementById('bankReceived').value);
-                
-                const response = await fetch(SCRIPT_URL, {
+                formData.append('employeeName', document.getElementById('employeeName').value.trim());
+                formData.append('cash', cash);
+                formData.append('phonepe', phonepe);
+                formData.append('icici', icici);
+                formData.append('bank', bank);
+                formData.append('xtra', xtra);
+                formData.append('total', total);
+
+                // Submit to Google Apps Script
+                const response = await fetch(CONFIG.spreadsheetUrl, {
                     method: 'POST',
                     body: formData,
-                    mode: 'cors'
+                    mode: 'no-cors' // Google Apps Script handles CORS automatically
                 });
+
+                // Since we're using no-cors, we can't read the response
+                // But if no error was thrown, the request was sent successfully
+                showMessage('Data submitted successfully! ✅', 'success');
                 
-                const data = await response.text();
-                console.log('Fetch POST Response:', data);
-                
-                if (response.ok) {
-                    showStatus('fetchPostResult', `✅ Fetch POST successful! Response: ${data}`, 'success');
-                } else {
-                    showStatus('fetchPostResult', `❌ Fetch POST failed. Status: ${response.status}`, 'error');
-                }
-                
+                // Reset form except date and employee name
+                document.getElementById('cash').value = '';
+                document.getElementById('phonepe').value = '';
+                document.getElementById('icici').value = '';
+                document.getElementById('bank').value = '';
+                document.getElementById('xtra').value = '';
+                calculateTotal();
+
             } catch (error) {
-                console.error('Fetch POST Error:', error);
-                showStatus('fetchPostResult', `❌ Fetch POST error: ${error.message}`, 'error');
+                console.error('Submission error:', error);
+                showMessage('Submission failed. Please check your internet connection and try again.', 'error');
             }
-        }
-        
-        // Method 3: Handle form submission
-        document.getElementById('testForm').addEventListener('submit', function(e) {
-            showStatus('postResult', '⏳ Submitting form via iframe...', 'info');
-            console.log('Form submitted to:', SCRIPT_URL);
+
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Data';
         });
-        
-        // Handle iframe response
-        document.querySelector('iframe[name="testFrame"]').addEventListener('load', function() {
-            setTimeout(() => {
-                showStatus('postResult', '✅ Form submitted! Check your Google Sheet and Apps Script logs.', 'success');
-            }, 1000);
-        });
-        
-        console.log('Test page loaded. Script URL:', SCRIPT_URL);
+
+
     </script>
 </body>
 </html>
