@@ -319,13 +319,25 @@
                 // Submit to Google Apps Script
                 const response = await fetch(CONFIG.spreadsheetUrl, {
                     method: 'POST',
-                    body: formData,
-                    mode: 'no-cors' // Google Apps Script handles CORS automatically
+                    body: formData
                 });
 
-                // Since we're using no-cors, we can't read the response
-                // But if no error was thrown, the request was sent successfully
-                showMessage('Data submitted successfully! ✅', 'success');
+                // Check if the request was successful
+                if (response.ok) {
+                    try {
+                        const result = await response.json();
+                        if (result.status === 'success') {
+                            showMessage('Data submitted successfully! ✅', 'success');
+                        } else {
+                            showMessage(`Error: ${result.message}`, 'error');
+                        }
+                    } catch (parseError) {
+                        // If we can't parse JSON, but response is ok, assume success
+                        showMessage('Data submitted successfully! ✅', 'success');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 
                 // Reset form except date and employee name
                 document.getElementById('cash').value = '';
