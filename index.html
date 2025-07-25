@@ -3,321 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petrol Entry System</title>
+    <title>Simple Test Form</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
             padding: 20px;
-            background-color: #f8f9fa;
+            background-color: #f5f5f5;
         }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .form-container {
-            background-color: white;
-            padding: 25px;
+        .container {
+            background: white;
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
         input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ced4da;
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input:focus {
-            border-color: #4CAF50;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
         }
         button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px;
             width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 600;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-            margin-top: 10px;
         }
-        button:hover:not(:disabled) {
-            background-color: #45a049;
+        button:hover {
+            background: #0056b3;
         }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        #total {
-            font-weight: bold;
-            background: #f5f5f5;
-            font-size: 18px;
-        }
-        #message {
+        .status {
             margin-top: 20px;
-            padding: 15px;
-            display: none;
+            padding: 10px;
             border-radius: 4px;
             text-align: center;
         }
-        .success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .hidden-iframe {
-            display: none;
-        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Petrol Entry System</h1>
+    <div class="container">
+        <h1>🧪 Test Form</h1>
         
-        <div id="message"></div>
+        <div id="status" class="status hidden"></div>
         
-        <!-- Main visible form for user interaction -->
-        <form id="entryForm">
-            <div class="form-group">
-                <label for="date">Date:</label>
-                <input type="date" id="date" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="employeeName">Employee Name:</label>
-                <input type="text" id="employeeName" required placeholder="Enter employee name">
-            </div>
-            
-            <div class="form-group">
-                <label for="cashReceived">Cash Received (₹):</label>
-                <input type="number" id="cashReceived" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
-            </div>
-            
-            <div class="form-group">
-                <label for="paytmReceived">Paytm Received (₹):</label>
-                <input type="number" id="paytmReceived" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
-            </div>
-            
-            <div class="form-group">
-                <label for="iciciTransfer">ICICI Transfer (₹):</label>
-                <input type="number" id="iciciTransfer" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
-            </div>
-            
-            <div class="form-group">
-                <label for="xtraPowerPayment">XtraPower Payment (₹):</label>
-                <input type="number" id="xtraPowerPayment" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
-            </div>
-            
-            <div class="form-group">
-                <label for="bankReceived">Bank Received (₹):</label>
-                <input type="number" id="bankReceived" step="0.01" min="0" placeholder="0.00" oninput="calculateTotal()">
-            </div>
-            
-            <div class="form-group">
-                <label>Total Amount (₹):</label>
-                <input type="number" id="total" readonly>
-            </div>
-            
-            <button type="submit" id="submitBtn">
-                <span id="btnText">Submit Entry</span>
-            </button>
-        </form>
+        <!-- Test GET request first -->
+        <div id="testGet">
+            <h3>Step 1: Test GET Request</h3>
+            <button onclick="testGetRequest()">Test GET Request</button>
+            <div id="getResult" class="status hidden"></div>
+        </div>
         
-        <!-- Hidden iframe for form submission -->
-        <iframe name="hiddenFrame" class="hidden-iframe"></iframe>
+        <hr style="margin: 30px 0;">
         
-        <!-- Hidden form that actually submits to Google Apps Script -->
-        <form id="hiddenForm" method="POST" target="hiddenFrame" style="display: none;">
-            <input type="hidden" name="date" id="hiddenDate">
-            <input type="hidden" name="employeeName" id="hiddenEmployeeName">
-            <input type="hidden" name="cashReceived" id="hiddenCashReceived">
-            <input type="hidden" name="paytmReceived" id="hiddenPaytmReceived">
-            <input type="hidden" name="iciciTransfer" id="hiddenIciciTransfer">
-            <input type="hidden" name="xtraPowerPayment" id="hiddenXtraPowerPayment">
-            <input type="hidden" name="bankReceived" id="hiddenBankReceived">
-        </form>
+        <!-- Test POST via iframe -->
+        <div id="testPost">
+            <h3>Step 2: Test POST Request</h3>
+            <form id="testForm" method="POST" target="testFrame">
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="employeeName">Employee Name:</label>
+                    <input type="text" id="employeeName" name="employeeName" value="Test User" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cashReceived">Cash Received:</label>
+                    <input type="number" id="cashReceived" name="cashReceived" value="100" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="paytmReceived">Paytm Received:</label>
+                    <input type="number" id="paytmReceived" name="paytmReceived" value="50" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="iciciTransfer">ICICI Transfer:</label>
+                    <input type="number" id="iciciTransfer" name="iciciTransfer" value="200" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="xtraPowerPayment">XtraPower Payment:</label>
+                    <input type="number" id="xtraPowerPayment" name="xtraPowerPayment" value="75" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bankReceived">Bank Received:</label>
+                    <input type="number" id="bankReceived" name="bankReceived" value="25" step="0.01">
+                </div>
+                
+                <button type="submit">Submit Test Data</button>
+            </form>
+            
+            <iframe name="testFrame" style="display: none;"></iframe>
+            <div id="postResult" class="status hidden"></div>
+        </div>
     </div>
 
     <script>
-        // Google Apps Script URL - UPDATE THIS WITH YOUR DEPLOYMENT URL
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec";
+        // UPDATE THIS URL WITH YOUR GOOGLE APPS SCRIPT DEPLOYMENT URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2RBR6r8_ORF3hOEQOmrWcEzdr6jC0-kC7c0fCEsVVo6ArHTnQgCrrgjcyzDRLrbhePA/exec";
         
-        // DOM Elements
-        const visibleForm = document.getElementById('entryForm');
-        const hiddenForm = document.getElementById('hiddenForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const messageDiv = document.getElementById('message');
-        const iframe = document.querySelector('iframe[name="hiddenFrame"]');
+        // Set today's date
+        document.getElementById('date').valueAsDate = new Date();
         
-        // Set the hidden form action to the script URL
-        hiddenForm.action = scriptUrl;
+        // Set form action
+        document.getElementById('testForm').action = SCRIPT_URL;
         
-        // Calculate total in real-time
-        function calculateTotal() {
-            const cash = parseFloat(document.getElementById('cashReceived').value) || 0;
-            const paytm = parseFloat(document.getElementById('paytmReceived').value) || 0;
-            const icici = parseFloat(document.getElementById('iciciTransfer').value) || 0;
-            const xtra = parseFloat(document.getElementById('xtraPowerPayment').value) || 0;
-            const bank = parseFloat(document.getElementById('bankReceived').value) || 0;
-            
-            const total = cash + paytm + icici + xtra + bank;
-            document.getElementById('total').value = total.toFixed(2);
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.classList.remove('hidden');
         }
-
-        // Show loading state
-        function showLoading() {
-            submitBtn.disabled = true;
-            btnText.innerHTML = '<span class="loading"></span> Processing...';
-        }
-
-        // Hide loading state
-        function hideLoading() {
-            submitBtn.disabled = false;
-            btnText.textContent = 'Submit Entry';
-        }
-
-        // Show message
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = type;
-            messageDiv.style.display = 'block';
-            
-            // Auto-hide success messages after 5 seconds
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
-            }
-        }
-
-        // Handle iframe load event
-        iframe.addEventListener('load', function() {
-            // Only handle if we just submitted a form
-            if (submitBtn.disabled) {
-                console.log('Form submitted successfully via iframe');
-                showMessage("✅ Entry submitted successfully!", "success");
+        
+        // Test GET request
+        async function testGetRequest() {
+            try {
+                showStatus('getResult', 'Testing GET request...', 'info');
                 
-                // Reset the visible form
-                visibleForm.reset();
-                calculateTotal();
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.text();
                 
-                // Set date to today again after reset
-                document.getElementById('date').valueAsDate = new Date();
+                console.log('GET Response:', data);
                 
-                hideLoading();
-            }
-        });
-
-        // Handle form submission
-        visibleForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate required fields
-            const date = document.getElementById('date').value;
-            const employeeName = document.getElementById('employeeName').value.trim();
-            
-            if (!date) {
-                showMessage("❌ Please select a date", "error");
-                return;
-            }
-            
-            if (!employeeName) {
-                showMessage("❌ Please enter employee name", "error");
-                return;
-            }
-            
-            showLoading();
-            showMessage("⏳ Submitting entry...", "info");
-            
-            // Copy data to hidden form
-            document.getElementById('hiddenDate').value = date;
-            document.getElementById('hiddenEmployeeName').value = employeeName;
-            document.getElementById('hiddenCashReceived').value = document.getElementById('cashReceived').value || '0';
-            document.getElementById('hiddenPaytmReceived').value = document.getElementById('paytmReceived').value || '0';
-            document.getElementById('hiddenIciciTransfer').value = document.getElementById('iciciTransfer').value || '0';
-            document.getElementById('hiddenXtraPowerPayment').value = document.getElementById('xtraPowerPayment').value || '0';
-            document.getElementById('hiddenBankReceived').value = document.getElementById('bankReceived').value || '0';
-            
-            // Submit the hidden form
-            console.log('Submitting form to:', scriptUrl);
-            console.log('Form data:', {
-                date: document.getElementById('hiddenDate').value,
-                employeeName: document.getElementById('hiddenEmployeeName').value,
-                cashReceived: document.getElementById('hiddenCashReceived').value,
-                paytmReceived: document.getElementById('hiddenPaytmReceived').value,
-                iciciTransfer: document.getElementById('hiddenIciciTransfer').value,
-                xtraPowerPayment: document.getElementById('hiddenXtraPowerPayment').value,
-                bankReceived: document.getElementById('hiddenBankReceived').value
-            });
-            
-            hiddenForm.submit();
-            
-            // Backup timeout in case iframe doesn't load
-            setTimeout(() => {
-                if (submitBtn.disabled) {
-                    console.log('Iframe did not respond, assuming success');
-                    showMessage("✅ Entry submitted (response timeout)", "success");
-                    visibleForm.reset();
-                    calculateTotal();
-                    document.getElementById('date').valueAsDate = new Date();
-                    hideLoading();
+                if (response.ok) {
+                    showStatus('getResult', `✅ GET request successful! Response: ${data}`, 'success');
+                } else {
+                    showStatus('getResult', `❌ GET request failed. Status: ${response.status}`, 'error');
                 }
-            }, 10000); // 10 second timeout
-        });
-
-        // Initialize form
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set default date to today
-            document.getElementById('date').valueAsDate = new Date();
+                
+            } catch (error) {
+                console.error('GET Error:', error);
+                showStatus('getResult', `❌ GET request error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Handle form submission
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            showStatus('postResult', '⏳ Submitting form via iframe...', 'info');
             
-            // Initialize total calculation
-            calculateTotal();
-            
-            console.log('Petrol Entry System initialized');
-            console.log('Script URL:', scriptUrl);
+            console.log('Form submitted to:', SCRIPT_URL);
+            console.log('Form data:', new FormData(this));
         });
+        
+        // Handle iframe response
+        document.querySelector('iframe[name="testFrame"]').addEventListener('load', function() {
+            setTimeout(() => {
+                showStatus('postResult', '✅ Form submitted! Check your Google Sheet and Apps Script logs.', 'success');
+            }, 1000);
+        });
+        
+        console.log('Test page loaded. Script URL:', SCRIPT_URL);
     </script>
 </body>
 </html>
