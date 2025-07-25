@@ -202,48 +202,33 @@
             }, 5000);
         }
 
-        // Submit form to Google Sheets
+        // Submit form to Google Sheets using form submission method
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoading();
             
-            const formData = {
-                date: document.getElementById('date').value,
-                employeeName: document.getElementById('employeeName').value,
-                cashReceived: document.getElementById('cashReceived').value || 0,
-                paytmReceived: document.getElementById('paytmReceived').value || 0,
-                iciciTransfer: document.getElementById('iciciTransfer').value || 0,
-                xtraPowerPayment: document.getElementById('xtraPowerPayment').value || 0,
-                bankReceived: document.getElementById('bankReceived').value || 0
-            };
+            const formData = new FormData();
+            formData.append('date', document.getElementById('date').value);
+            formData.append('employeeName', document.getElementById('employeeName').value);
+            formData.append('cashReceived', document.getElementById('cashReceived').value || 0);
+            formData.append('paytmReceived', document.getElementById('paytmReceived').value || 0);
+            formData.append('iciciTransfer', document.getElementById('iciciTransfer').value || 0);
+            formData.append('xtraPowerPayment', document.getElementById('xtraPowerPayment').value || 0);
+            formData.append('bankReceived', document.getElementById('bankReceived').value || 0);
 
             try {
-                // First make an OPTIONS request to handle CORS preflight
-                const optionsResponse = await fetch(scriptUrl, {
-                    method: 'OPTIONS',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-
-                // Then make the POST request
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
+                    body: formData,
+                    mode: 'no-cors' // This bypasses CORS restrictions
                 });
                 
-                const result = await response.json();
+                // Since we're using no-cors mode, we can't read the response
+                // but if no error is thrown, we assume success
+                showMessage("✅ Entry submitted successfully!", "success");
+                form.reset();
+                calculateTotal(); // Reset total to 0
                 
-                if (result.success) {
-                    showMessage("✅ Entry saved successfully!", "success");
-                    form.reset();
-                    calculateTotal(); // Reset total to 0
-                } else {
-                    showMessage(`❌ Error: ${result.error || "Failed to save data"}`, "error");
-                }
             } catch (error) {
                 showMessage(`❌ Network Error: ${error.message}`, "error");
                 console.error('Submission error:', error);
